@@ -19,5 +19,15 @@ def new_item():
     add_item(item_title)
     return redirect(url_for('index'))
 
+
+@app.route('/complete', methods=['POST'])
+def complete_item():
+    completed = request.form.getlist('completed')
+    for c in completed:
+        item = get_item(c)
+        item['status'] = 'Completed'
+        save_item(item)
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run()
