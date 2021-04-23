@@ -11,7 +11,8 @@ app.config.from_object(Config)
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template("index.html", items=get_items())
+    sorted_items = sorted(get_items(), key=lambda item: item['status'], reverse=True)
+    return render_template("index.html", items=sorted_items)
 
 @app.route('/', methods=['POST'])
 def new_item():
