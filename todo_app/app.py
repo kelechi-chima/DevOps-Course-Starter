@@ -22,7 +22,7 @@ def new_item():
     return redirect(url_for('index'))
 
 
-@app.route('/complete/<item_id>', methods=['GET'])
+@app.route('/complete/<item_id>', methods=['POST'])
 def complete_item(item_id):
     move_card_to_done_list(item_id)
     return redirect(url_for('index'))

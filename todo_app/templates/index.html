@@ -10,27 +10,37 @@
   <div class="row">
     <div class="col-md-12">
       <h2>Items</h2>
-      <form action="/complete" method="POST">
-        {% for item in items %}
-        <div class="form-check">
-          <label class="form-check-label" for="{{ item.id }}">{{ item.title }}</label>  <a href="{{ url_for('complete_item', item_id=item.id) }}" class="btn btn-info">Complete</a>
-          <br/>
-        </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary">Complete</button>
-      </form>
+        {% if items is defined and items|length > 0 %}
+          {% for item in items %}
+            <form method="post" action="{{ url_for('complete_item', item_id=item.id) }}" class="form-inline">
+              <div class="form-row">
+                <div class="col-15">
+                  <label for="{{ item.id }}">{{ item.title }}</label>
+                </div>
+                <div class="col">
+                  <button type="submit" class="btn btn-primary btn-sm">Complete</button>
+                </div>
+              </div>
+            </form>
+            <br/>
+          {% endfor %}
+        {% else %}
+          No items
+        {% endif %}  
     </div>
   </div>
   <br/>
   <div class="row">
     <div class="col-md-12">
       <h2>Add New Item</h2>
-      <form action="/" method="POST">
-        <div class="form-group">
-          <label for="item_title">Item title:</label>
-          <input type="text" id="item_title" name="item_title"><br>
+      <form action="/" method="POST" class="form-inline">
+        <div class="input-group mb-2 mr-sm-2">
+          <div class="input-group-prepend">
+            <div class="input-group-text">Title</div>
+          </div>
+          <input type="text" class="form-control" id="item_title" name="item_title" placeholder="Buy coffee">
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary mb-2">Submit</button>
       </form> 
     </div>
   </div>
