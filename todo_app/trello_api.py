@@ -7,6 +7,12 @@ board_name = 'Task Manager'
 todo_list_name = 'To Do'
 done_list_name = 'Done'
 
+class Item:
+    def __init__(self, title, id='', status='Not Started'):
+        self.title = title
+        self.id = id
+        self.status = status
+
 # Set up initial board with a to do list and a done list.
 def init_boards():
     board_id = create_board(board_name)
@@ -74,12 +80,13 @@ def find_list(lists, name):
             return list['id']
     return ''
 
-# Get all the cards in the to do list.
-def get_todo_cards():
+# Get all the cards in the to do list, mapping each one to an item.
+def get_todo_items():
     board_id = find_board(get_boards(), board_name)
     lists = get_lists(board_id)
     todo_list_id = find_list(lists, todo_list_name)
-    return get_cards_in_list(todo_list_id)
+    todo_cards = get_cards_in_list(todo_list_id)
+    return [Item(title=card['name'], id=card['id']) for card in todo_cards]
 
 def get_cards_in_list(list_id):
     url = f'https://api.trello.com/1/lists/{list_id}/cards'
@@ -89,21 +96,21 @@ def get_cards_in_list(list_id):
     else:
         return []
 
-# Create a new card with the given name in the to do list.
-def create_todo_card(card_name):
+# Create a new card in the to do list. The name of the card is the title of the given item.
+def create_todo_item(new_item: Item):
     list_id = get_todo_list()
     url = 'https://api.trello.com/1/cards'
     query = dict(base_query)
     query['idList'] = list_id
-    query['name'] = card_name
+    query['name'] = new_item.title
     response = requests.post(url, params=query)
     result = response.json()
     return result['id']
 
 # Update the card with the given id to be in the done list.
-def move_card_to_done_list(card_id):
+def complete(item_id):
     list_id = get_done_list()
-    url = f'https://api.trello.com/1/cards/{card_id}'
+    url = f'https://api.trello.com/1/cards/{item_id}'
     move_card_query = dict(base_query)
     move_card_query['idList'] = list_id
     response = requests.put(url, params=move_card_query)
