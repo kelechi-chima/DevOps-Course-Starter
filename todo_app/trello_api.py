@@ -26,8 +26,7 @@ def create_board(board_name):
     return result['id']
 
 def get_boards():
-    username = os.environ.get('TRELLO_USERNAME')
-    url = f'https://api.trello.com/1/members/{username}/boards'
+    url = 'https://api.trello.com/1/members/me/boards'
     query = dict(base_query)
     query['fields'] = 'id,name'
     response = requests.get(url, params=query)
