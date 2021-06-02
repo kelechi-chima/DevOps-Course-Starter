@@ -3,31 +3,25 @@ from flask import redirect, render_template, url_for
 from flask import request
 
 from todo_app.flask_config import Config
-from todo_app.data.session_items import *
+from todo_app.trello_api import create_todo_item, complete, get_todo_items, Item
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-
 @app.route('/', methods=['GET'])
 def index():
-    sorted_items = sorted(get_items(), key=lambda item: item['status'], reverse=True)
-    return render_template("index.html", items=sorted_items)
+    return render_template("index.html", items=get_todo_items())
 
 @app.route('/', methods=['POST'])
 def new_item():
-    item_title = request.form['item_title']
-    add_item(item_title)
+    new_item = Item(request.form['item_title'])
+    create_todo_item(new_item)
     return redirect(url_for('index'))
 
 
-@app.route('/complete', methods=['POST'])
-def complete_item():
-    completed = request.form.getlist('completed')
-    for c in completed:
-        item = get_item(c)
-        item['status'] = 'Completed'
-        save_item(item)
+@app.route('/complete/<item_id>', methods=['POST'])
+def complete_item(item_id):
+    complete(item_id)
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
