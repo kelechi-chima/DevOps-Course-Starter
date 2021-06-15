@@ -8,9 +8,18 @@ from todo_app.trello_api import create_todo_item, complete, get_todo_items, Item
 app = Flask(__name__)
 app.config.from_object(Config)
 
+class ViewModel:
+    def __init__(self, items):
+        self._items = items
+    
+    @property
+    def items(self):
+        return self._items
+
 @app.route('/', methods=['GET'])
 def index():
-    return render_template("index.html", items=get_todo_items())
+    item_view_model = ViewModel(get_todo_items())
+    return render_template("index.html", view_model=item_view_model)
 
 @app.route('/', methods=['POST'])
 def new_item():
