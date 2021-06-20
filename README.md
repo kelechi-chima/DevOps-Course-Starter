@@ -53,3 +53,23 @@ You should see output similar to the following:
  * Debugger PIN: 226-556-590
 ```
 Now visit [`http://localhost:5000/`](http://localhost:5000/) in your web browser to view the app.
+
+## Running tests
+
+The unit tests are run with pytest. From a terminal you can run one of the following:
+```bash
+ * poetry run pytest
+ * python -m pytest
+```
+
+To run all tests in a module (e.g test_view_model.py) run the following from the root directory:
+```bash
+ pytest tests/test_view_model.py
+```
+
+To run a single test in a module (e.g test_view_model.py) run the following from the root directory:
+```bash
+ pytest tests/test_view_model.py::test_returns_only_todo_items
+```
+
+All tests or individual tests can also be run from an IDE. If using Visual Studio Code you can follow the guide at https://code.visualstudio.com/docs/python/testing.
