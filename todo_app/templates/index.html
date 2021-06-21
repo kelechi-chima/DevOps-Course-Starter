@@ -52,14 +52,31 @@
       <div class="col-sm">
         <h2>Done Items</h2>
           {% if view_model is defined and view_model.done_items is defined and view_model.done_items|length > 0 %}
-            {% for item in view_model.done_items %}
-                <div class="form-row">
-                  <div class="col-15">
-                    <label for="{{ item.id }}">{{ item.title }}</label>
+            {% if view_model.should_show_all_done_items %}
+              {% for item in view_model.done_items %}
+                  <div class="form-row">
+                    <div class="col-15">
+                      <label for="{{ item.id }}">{{ item.title }}</label>
+                    </div>
                   </div>
-                </div>
-              <br/>
-            {% endfor %}
+                <br/>
+              {% endfor %}
+            {% else %}
+              {% for item in view_model.recent_done_items %}
+                  <div class="form-row">
+                    <div class="col-15">
+                      <label for="{{ item.id }}">{{ item.title }}</label>
+                    </div>
+                  </div>
+                <br/>
+              {% endfor %}
+              <details>
+                <summary>Older items</summary>
+                {% for item in view_model.older_done_items %}
+                  <label for="{{ item.id }}">{{ item.title }}</label>
+                {% endfor %}
+              </details>
+            {% endif %}
           {% else %}
             No items
           {% endif %}  
