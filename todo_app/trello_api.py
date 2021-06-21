@@ -1,17 +1,13 @@
 import os
 import requests
 import sys
+from todo_app.view_model import Item, ItemStatus
 
 base_query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN') }
 board_name = 'Task Manager'
-todo_list_name = 'To Do'
-done_list_name = 'Done'
-
-class Item:
-    def __init__(self, title, id='', status='Not Started'):
-        self.title = title
-        self.id = id
-        self.status = status
+todo_list_name = ItemStatus.TODO.value
+doing_list_name = ItemStatus.DOING.value
+done_list_name = ItemStatus.DONE.value
 
 # Set up initial board with a to do list and a done list.
 def init_boards():
@@ -62,6 +58,10 @@ def get_todo_list():
     board_id = find_board(get_boards(), board_name)
     return find_list(get_lists(board_id), todo_list_name)
 
+def get_doing_list():
+    board_id = find_board(get_boards(), board_name)
+    return find_list(get_lists(board_id), doing_list_name)
+
 def get_done_list():
     board_id = find_board(get_boards(), board_name)
     return find_list(get_lists(board_id), done_list_name)
@@ -79,6 +79,25 @@ def find_list(lists, name):
         if list['name'] == name:
             return list['id']
     return ''
+
+# Get all the cards on the board. Returns a list of lists.
+def get_all_items():
+    board_id = find_board(get_boards(), board_name)
+    lists = get_lists(board_id)
+
+    todo_list_id = find_list(lists, todo_list_name)
+    todo_cards = get_cards_in_list(todo_list_id)
+    todo_items = [Item(title=card['name'], id=card['id'], status=ItemStatus.TODO.value) for card in todo_cards]
+
+    doing_list_id = find_list(lists, doing_list_name)
+    doing_cards = get_cards_in_list(doing_list_id)
+    doing_items = [Item(title=card['name'], id=card['id'], status=ItemStatus.DOING.value) for card in doing_cards]
+
+    done_list_id = find_list(lists, done_list_name)
+    done_cards = get_cards_in_list(done_list_id)
+    done_items = [Item(title=card['name'], id=card['id'], status=ItemStatus.DONE.value) for card in done_cards]
+    
+    return [todo_items, doing_items, done_items]
 
 # Get all the cards in the to do list, mapping each one to an item.
 def get_todo_items():
@@ -107,10 +126,17 @@ def create_todo_item(new_item: Item):
     result = response.json()
     return result['id']
 
+# Update the card with the given id to be in the doing list.
+def start(item_id):
+    _move_card_to_list(item_id, get_doing_list())
+
 # Update the card with the given id to be in the done list.
 def complete(item_id):
-    list_id = get_done_list()
-    url = f'https://api.trello.com/1/cards/{item_id}'
+    _move_card_to_list(item_id, get_done_list())
+
+# Calls the Trello API to move the card with given card id to the list with given list id.
+def _move_card_to_list(card_id, to_list_id):
+    url = f'https://api.trello.com/1/cards/{card_id}'
     move_card_query = dict(base_query)
-    move_card_query['idList'] = list_id
-    response = requests.put(url, params=move_card_query)
+    move_card_query['idList'] = to_list_id
+    requests.put(url, params=move_card_query)

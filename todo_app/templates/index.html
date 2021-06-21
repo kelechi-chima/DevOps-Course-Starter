@@ -7,26 +7,63 @@
     <p class="lead">Just another to-do app.</p>
   </div>
 
-  <div class="row">
-    <div class="col-md-12">
-      <h2>Items</h2>
-        {% if view_model is defined and view_model.items is defined and view_model.items|length > 0 %}
-          {% for item in view_model.items %}
-            <form method="post" action="{{ url_for('complete_item', item_id=item.id) }}" class="form-inline">
-              <div class="form-row">
-                <div class="col-15">
-                  <label for="{{ item.id }}">{{ item.title }}</label>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm">
+        <h2>To Do Items</h2>
+          {% if view_model is defined and view_model.todo_items is defined and view_model.todo_items|length > 0 %}
+            {% for item in view_model.todo_items %}
+              <form method="post" action="{{ url_for('start_item', item_id=item.id) }}" class="form-inline">
+                <div class="form-row">
+                  <div class="col-15">
+                    <label for="{{ item.id }}">{{ item.title }}</label>
+                  </div>
+                  <div class="col">
+                    <button type="submit" class="btn btn-primary btn-sm">Start</button>
+                  </div>
                 </div>
-                <div class="col">
-                  <button type="submit" class="btn btn-primary btn-sm">Complete</button>
+              </form>
+              <br/>
+            {% endfor %}
+          {% else %}
+            No items
+          {% endif %}  
+      </div>
+      <div class="col-sm">
+        <h2>Doing Items</h2>
+          {% if view_model is defined and view_model.doing_items is defined and view_model.doing_items|length > 0 %}
+            {% for item in view_model.doing_items %}
+              <form method="post" action="{{ url_for('complete_item', item_id=item.id) }}" class="form-inline">
+                <div class="form-row">
+                  <div class="col-15">
+                    <label for="{{ item.id }}">{{ item.title }}</label>
+                  </div>
+                  <div class="col">
+                    <button type="submit" class="btn btn-primary btn-sm">Complete</button>
+                  </div>
                 </div>
-              </div>
-            </form>
-            <br/>
-          {% endfor %}
-        {% else %}
-          No items
-        {% endif %}  
+              </form>
+              <br/>
+            {% endfor %}
+          {% else %}
+            No items
+          {% endif %}  
+      </div>
+      <div class="col-sm">
+        <h2>Done Items</h2>
+          {% if view_model is defined and view_model.done_items is defined and view_model.done_items|length > 0 %}
+            {% for item in view_model.done_items %}
+                <div class="form-row">
+                  <div class="col-15">
+                    <label for="{{ item.id }}">{{ item.title }}</label>
+                  </div>
+                </div>
+              <br/>
+            {% endfor %}
+          {% else %}
+            No items
+          {% endif %}  
+      </div>
     </div>
   </div>
   <br/>
