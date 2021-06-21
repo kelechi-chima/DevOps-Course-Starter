@@ -43,9 +43,6 @@ class ViewModel:
     def done_items(self):
         return self._done_items
 
-    def show_all_done_items(self, flag=True):
-        self._should_show_all_done_items = flag
-
     @property
     def should_show_all_done_items(self):
         return self._should_show_all_done_items
