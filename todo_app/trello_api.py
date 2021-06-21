@@ -95,7 +95,7 @@ def get_all_items():
 
     done_list_id = find_list(lists, done_list_name)
     done_cards = get_cards_in_list(done_list_id)
-    done_items = [Item(title=card['name'], id=card['id'], status=ItemStatus.DONE.value) for card in done_cards]
+    done_items = [Item(title=card['name'], id=card['id'], status=ItemStatus.DONE.value, completed_date=card['dateLastActivity']) for card in done_cards]
     
     return [todo_items, doing_items, done_items]
 
