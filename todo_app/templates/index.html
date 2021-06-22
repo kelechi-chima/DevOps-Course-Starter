@@ -73,7 +73,7 @@
               <details>
                 <summary>Older items</summary>
                 {% for item in view_model.older_done_items %}
-                  <label for="{{ item.id }}">{{ item.title }}</label>
+                  <label for="{{ item.id }}">{{ item.title }}</label><br/>
                 {% endfor %}
               </details>
             {% endif %}
