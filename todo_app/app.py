@@ -16,7 +16,7 @@ def create_app():
 
     @app.route('/', methods=['POST'])
     def new_item():
-        new_item = Item(request.form['item_title'])
+        new_item = Item(request.form['new_item_title'])
         create_todo_item(new_item)
         return redirect(url_for('index'))
 

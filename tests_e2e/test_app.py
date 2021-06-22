@@ -1,6 +1,7 @@
 import os
 import pytest
 import requests
+import time
 from dotenv import find_dotenv, load_dotenv
 from selenium import webdriver
 from threading import Thread
@@ -49,3 +50,9 @@ def driver():
 def test_task_journey(driver, app_with_temp_board):
     driver.get('http://localhost:5000/')
     assert driver.title == 'To-Do App'
+    time.sleep(2)
+    new_item_box = driver.find_element_by_name('new_item_title')
+    new_item_box.send_keys('Buy bread')
+    new_item_box.submit()
+    time.sleep(2)
+    assert 'Buy bread' in driver.page_source
