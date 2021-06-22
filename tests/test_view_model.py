@@ -1,26 +1,31 @@
 """Unit tests for ViewModel"""
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 from todo_app.view_model import Item, ItemStatus, ViewModel
 
 
-today = datetime.utcnow().date()
-yesterday = today - timedelta(days=1)
+today = date.today()
+yesterday = date.today() - timedelta(days=1)
 
 @pytest.fixture
 def view_model():
     todo_items = [Item('New task', id='3', status=ItemStatus.TODO.value)]
     doing_items = [Item('In progress', id='2', status=ItemStatus.DOING.value)]
+
+    today_string = today.isoformat()
+    yesterday_string = yesterday.isoformat()
+
     done_items = [
-        Item('Completed task 1', id='1', status=ItemStatus.DONE.value, completed_date=today),
-        Item('Completed task 2', id='2', status=ItemStatus.DONE.value, completed_date=today),
-        Item('Completed task 3', id='3', status=ItemStatus.DONE.value, completed_date=today),
-        Item('Completed task 4', id='4', status=ItemStatus.DONE.value, completed_date=yesterday),
-        Item('Completed task 5', id='5', status=ItemStatus.DONE.value, completed_date=yesterday),
-        Item('Completed task 6', id='6', status=ItemStatus.DONE.value, completed_date=yesterday),
-        Item('Completed task 7', id='7', status=ItemStatus.DONE.value, completed_date=yesterday),
+        Item('Completed task 1', id='1', status=ItemStatus.DONE.value, completed_date=today_string),
+        Item('Completed task 2', id='2', status=ItemStatus.DONE.value, completed_date=today_string),
+        Item('Completed task 3', id='3', status=ItemStatus.DONE.value, completed_date=today_string),
+        Item('Completed task 4', id='4', status=ItemStatus.DONE.value, completed_date=yesterday_string),
+        Item('Completed task 5', id='5', status=ItemStatus.DONE.value, completed_date=yesterday_string),
+        Item('Completed task 6', id='6', status=ItemStatus.DONE.value, completed_date=yesterday_string),
+        Item('Completed task 7', id='7', status=ItemStatus.DONE.value, completed_date=yesterday_string),
     ]
+
     return ViewModel([todo_items, doing_items, done_items])
 
 def test_returns_only_todo_items(view_model: ViewModel):
@@ -43,7 +48,7 @@ def test_only_recently_done_items_are_to_be_shown(view_model: ViewModel):
     assert view_model.should_show_all_done_items == False
 
 def test_all_done_items_are_to_be_shown():
-    view_model = ViewModel([[], [], [Item('Completed task 1', id='1', status=ItemStatus.DONE.value, completed_date=today)]])
+    view_model = ViewModel([[], [], [Item('Completed task 1', id='1', status=ItemStatus.DONE.value, completed_date=today.isoformat())]])
     assert view_model.should_show_all_done_items == True
 
 def test_returns_items_completed_today(view_model: ViewModel):
@@ -56,4 +61,4 @@ def test_returns_items_completed_before_today(view_model: ViewModel):
     items_completed_before_today = view_model.older_done_items
     assert len(items_completed_before_today) == 4
     for item in items_completed_before_today:
-        assert item.completed_date < today
+        assert item.completed_date == yesterday
