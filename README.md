@@ -56,6 +56,7 @@ Now visit [`http://localhost:5000/`](http://localhost:5000/) in your web browser
 
 ## Running tests
 
+### Unit tests
 The unit tests are run with pytest. From a terminal you can run one of the following:
 ```bash
  * poetry run pytest
@@ -73,3 +74,16 @@ To run a single test in a module (e.g test_view_model.py) run the following from
 ```
 
 All tests or individual tests can also be run from an IDE. If using Visual Studio Code you can follow the guide at https://code.visualstudio.com/docs/python/testing.
+
+### Integration tests
+
+The integration tests are under tests_e2e. From a terminal you can run them as follows:
+```bash
+ * * poetry run pytest tests_e2e
+ * python -m pytest tests_e2e
+```
+
+### Setting up Chrome Driver
+https://chromedriver.chromium.org/getting-started
+
+If you get an error from Mac OS that the chrome driver cannot be executed please read the workaround here: https://stackoverflow.com/questions/60362018/macos-catalinav-10-15-3-error-chromedriver-cannot-be-opened-because-the-de

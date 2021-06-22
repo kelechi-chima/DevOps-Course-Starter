@@ -1,11 +1,11 @@
 """Integration tests for trello_api module"""
 
-import json
+import os
 import pytest
 import re
 from dotenv import find_dotenv, load_dotenv
 from todo_app.app import create_app
-from todo_app.trello_api import board_name, doing_list_name, done_list_name, todo_list_name
+from todo_app.trello_api import doing_list_name, done_list_name, todo_list_name
 from unittest.mock import Mock, patch
 
 TEST_BOARD_ID = '1'
@@ -37,8 +37,10 @@ def mock_get_calls(url, params):
     if url == 'https://api.trello.com/1/members/me/boards' and params is not None:
         response = Mock()
         response.status_code = 200
-        json_string = f'[{{"id": "{TEST_BOARD_ID}", "name": "{board_name}"}}]'
-        response.json.return_value = json.loads(json_string)
+        board_name = os.environ['BOARD_NAME']
+        response.json.return_value = [
+            {'id': TEST_BOARD_ID, 'name': board_name}
+        ]
         return response
     elif url == f'https://api.trello.com/1/boards/{TEST_BOARD_ID}/lists':
         response = Mock()

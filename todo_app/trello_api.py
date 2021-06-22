@@ -2,8 +2,6 @@ import os
 import requests
 from todo_app.view_model import Item, ItemStatus
 
-base_query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN') }
-board_name = 'Task Manager'
 board_id = ''
 lists = []
 todo_list_name = ItemStatus.TODO.value
@@ -14,6 +12,7 @@ done_list_name = ItemStatus.DONE.value
 def init_boards():
     global board_id
     if board_id == '':
+        board_name = os.environ['BOARD_NAME']
         board_id = create_board(board_name)
     global lists
     lists = get_lists(board_id)
@@ -27,19 +26,22 @@ def create_board(board_name):
     if board_id != '':
         return board_id
     url = 'https://api.trello.com/1/boards/'
-    query = dict(base_query)
-    query['name'] = board_name
+    query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN'), 'name': board_name }
     response = requests.post(url, params=query)
     result = response.json()
     return result['id']
 
 def get_boards():
     url = 'https://api.trello.com/1/members/me/boards'
-    query = dict(base_query)
-    query['fields'] = 'id,name'
+    query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN'), 'fields': 'id,name' }
     response = requests.get(url, params=query)
-    result = response.json()
-    return result
+    status_code = response.status_code
+    if status_code == 400:
+        body = response.content.decode()
+        raise RuntimeError(f'Could not get boards: {body}')
+    else:
+        result = response.json()
+        return result
 
 def find_board(boards, name):
     if len(boards) > 0:
@@ -54,29 +56,30 @@ def create_list_if_not_exists(board_id, list_name, lists):
     if list_id != '':
         return list_id
     url = f'https://api.trello.com/1/boards/{board_id}/lists'
-    query = dict(base_query)
-    query['name'] = list_name
+    query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN'), 'name': list_name }
     response = requests.post(url, params=query)
     result = response.json()
     return result['id']
 
 def get_todo_list():
+    board_name = os.environ['BOARD_NAME']
     board_id = find_board(get_boards(), board_name)
     return find_list(get_lists(board_id), todo_list_name)
 
 def get_doing_list():
+    board_name = os.environ['BOARD_NAME']
     board_id = find_board(get_boards(), board_name)
     return find_list(get_lists(board_id), doing_list_name)
 
 def get_done_list():
+    board_name = os.environ['BOARD_NAME']
     board_id = find_board(get_boards(), board_name)
     return find_list(get_lists(board_id), done_list_name)
 
 # Get all the lists in the board with the given id.
 def get_lists(board_id):
     url = f'https://api.trello.com/1/boards/{board_id}/lists'
-    query = dict(base_query)
-    query['fields'] = 'id,name'
+    query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN'), 'fields': 'id,name' }
     resp = requests.get(url, params=query)
     return resp.json()
 
@@ -106,6 +109,7 @@ def get_all_items():
 
 # Get all the cards in the to do list, mapping each one to an item.
 def get_todo_items():
+    board_name = os.environ['BOARD_NAME']
     board_id = find_board(get_boards(), board_name)
     lists = get_lists(board_id)
     todo_list_id = find_list(lists, todo_list_name)
@@ -114,7 +118,8 @@ def get_todo_items():
 
 def get_cards_in_list(list_id):
     url = f'https://api.trello.com/1/lists/{list_id}/cards'
-    response = requests.get(url, params=base_query)
+    query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN') }
+    response = requests.get(url, params=query)
     if response.status_code == 200:
         return response.json()
     else:
@@ -124,9 +129,7 @@ def get_cards_in_list(list_id):
 def create_todo_item(new_item: Item):
     list_id = get_todo_list()
     url = 'https://api.trello.com/1/cards'
-    query = dict(base_query)
-    query['idList'] = list_id
-    query['name'] = new_item.title
+    query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN'), 'idList': list_id, 'name': new_item.title }
     response = requests.post(url, params=query)
     result = response.json()
     return result['id']
@@ -142,6 +145,5 @@ def complete(item_id):
 # Calls the Trello API to move the card with given card id to the list with given list id.
 def _move_card_to_list(card_id, to_list_id):
     url = f'https://api.trello.com/1/cards/{card_id}'
-    move_card_query = dict(base_query)
-    move_card_query['idList'] = to_list_id
+    move_card_query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN'), 'idList': to_list_id }
     requests.put(url, params=move_card_query)
