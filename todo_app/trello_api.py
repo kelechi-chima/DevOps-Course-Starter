@@ -1,19 +1,25 @@
 import os
 import requests
-import sys
 from todo_app.view_model import Item, ItemStatus
 
 base_query = { 'key': os.environ.get('TRELLO_API_KEY'), 'token': os.environ.get('TRELLO_API_TOKEN') }
 board_name = 'Task Manager'
+board_id = ''
+lists = []
 todo_list_name = ItemStatus.TODO.value
 doing_list_name = ItemStatus.DOING.value
 done_list_name = ItemStatus.DONE.value
 
 # Set up initial board with a to do list and a done list.
 def init_boards():
-    board_id = create_board(board_name)
-    create_list(board_id, todo_list_name)
-    create_list(board_id, done_list_name)
+    global board_id
+    if board_id == '':
+        board_id = create_board(board_name)
+    global lists
+    lists = get_lists(board_id)
+    create_list_if_not_exists(board_id, todo_list_name, lists)
+    create_list_if_not_exists(board_id, doing_list_name, lists)
+    create_list_if_not_exists(board_id, done_list_name, lists)
 
 # Create board if it doesn't exist.
 def create_board(board_name):
@@ -32,7 +38,8 @@ def get_boards():
     query = dict(base_query)
     query['fields'] = 'id,name'
     response = requests.get(url, params=query)
-    return response.json()
+    result = response.json()
+    return result
 
 def find_board(boards, name):
     if len(boards) > 0:
@@ -42,8 +49,7 @@ def find_board(boards, name):
     return ''
 
 # Create list if it doesn't exist in given board.
-def create_list(board_id, list_name):
-    lists = get_lists(board_id)
+def create_list_if_not_exists(board_id, list_name, lists):
     list_id = find_list(lists, list_name)
     if list_id != '':
         return list_id
@@ -82,8 +88,7 @@ def find_list(lists, name):
 
 # Get all the cards on the board. Returns a list of lists.
 def get_all_items():
-    board_id = find_board(get_boards(), board_name)
-    lists = get_lists(board_id)
+    init_boards()
 
     todo_list_id = find_list(lists, todo_list_name)
     todo_cards = get_cards_in_list(todo_list_id)
