@@ -7,26 +7,80 @@
     <p class="lead">Just another to-do app.</p>
   </div>
 
-  <div class="row">
-    <div class="col-md-12">
-      <h2>Items</h2>
-        {% if items is defined and items|length > 0 %}
-          {% for item in items %}
-            <form method="post" action="{{ url_for('complete_item', item_id=item.id) }}" class="form-inline">
-              <div class="form-row">
-                <div class="col-15">
-                  <label for="{{ item.id }}">{{ item.title }}</label>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm">
+        <h2>To Do Items</h2>
+          {% if view_model is defined and view_model.todo_items is defined and view_model.todo_items|length > 0 %}
+            {% for item in view_model.todo_items %}
+              <form method="post" action="{{ url_for('start_item', item_id=item.id) }}" class="form-inline">
+                <div class="form-row">
+                  <div class="col-15">
+                    <label for="{{ item.id }}">{{ item.title }}</label>
+                  </div>
+                  <div class="col">
+                    <button type="submit" class="btn btn-primary btn-sm">Start</button>
+                  </div>
                 </div>
-                <div class="col">
-                  <button type="submit" class="btn btn-primary btn-sm">Complete</button>
+              </form>
+              <br/>
+            {% endfor %}
+          {% else %}
+            No items
+          {% endif %}  
+      </div>
+      <div class="col-sm">
+        <h2>Doing Items</h2>
+          {% if view_model is defined and view_model.doing_items is defined and view_model.doing_items|length > 0 %}
+            {% for item in view_model.doing_items %}
+              <form method="post" action="{{ url_for('complete_item', item_id=item.id) }}" class="form-inline">
+                <div class="form-row">
+                  <div class="col-15">
+                    <label for="{{ item.id }}">{{ item.title }}</label>
+                  </div>
+                  <div class="col">
+                    <button type="submit" class="btn btn-primary btn-sm">Complete</button>
+                  </div>
                 </div>
-              </div>
-            </form>
-            <br/>
-          {% endfor %}
-        {% else %}
-          No items
-        {% endif %}  
+              </form>
+              <br/>
+            {% endfor %}
+          {% else %}
+            No items
+          {% endif %}  
+      </div>
+      <div class="col-sm">
+        <h2>Done Items</h2>
+          {% if view_model is defined and view_model.done_items is defined and view_model.done_items|length > 0 %}
+            {% if view_model.should_show_all_done_items %}
+              {% for item in view_model.done_items %}
+                  <div class="form-row">
+                    <div class="col-15">
+                      <label for="{{ item.id }}">{{ item.title }}</label>
+                    </div>
+                  </div>
+                <br/>
+              {% endfor %}
+            {% else %}
+              {% for item in view_model.recent_done_items %}
+                  <div class="form-row">
+                    <div class="col-15">
+                      <label for="{{ item.id }}">{{ item.title }}</label>
+                    </div>
+                  </div>
+                <br/>
+              {% endfor %}
+              <details>
+                <summary>Older items</summary>
+                {% for item in view_model.older_done_items %}
+                  <label for="{{ item.id }}">{{ item.title }}</label><br/>
+                {% endfor %}
+              </details>
+            {% endif %}
+          {% else %}
+            No items
+          {% endif %}  
+      </div>
     </div>
   </div>
   <br/>
@@ -38,7 +92,7 @@
           <div class="input-group-prepend">
             <div class="input-group-text">Title</div>
           </div>
-          <input type="text" class="form-control" id="item_title" name="item_title" placeholder="Buy coffee">
+          <input type="text" class="form-control" id="new_item_title" name="new_item_title" placeholder="Buy coffee">
         </div>
         <button type="submit" class="btn btn-primary mb-2">Submit</button>
       </form> 
