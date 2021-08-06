@@ -120,3 +120,6 @@ env/
 .env
 
 .vscode/
+
+### Vagrant ###
+.vagrant/
