@@ -1,5 +1,7 @@
 FROM python:3.9.6-slim-buster as base
 
+WORKDIR /app
+
 COPY .env poetry.toml pyproject.toml wsgi.py ./
 RUN pip install poetry && \
     poetry config virtualenvs.create false && \
