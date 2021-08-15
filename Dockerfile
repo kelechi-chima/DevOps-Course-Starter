@@ -2,9 +2,9 @@ FROM python:3.9.6-slim-buster as base
 
 WORKDIR /app
 
-COPY .env poetry.toml pyproject.toml wsgi.py ./
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
+RUN pip install poetry
+COPY poetry.toml pyproject.toml wsgi.py ./
+RUN poetry config virtualenvs.create false && \
     poetry install --no-dev
 COPY todo_app/ todo_app
 EXPOSE 5000
@@ -14,4 +14,5 @@ ENV FLASK_ENV=development
 ENTRYPOINT [ "poetry", "run", "flask", "run", "--host=0.0.0.0" ]
 
 FROM base as production
+ENV FLASK_ENV=production
 ENTRYPOINT [ "poetry", "run", "gunicorn", "-b 0.0.0.0:5000", "-w 2", "wsgi:app" ]

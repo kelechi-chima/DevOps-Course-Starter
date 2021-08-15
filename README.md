@@ -95,14 +95,14 @@ The Dockerfile supports multi-stage builds (development and production). In both
 The development stage builds an image that can be used to run the app with Flask in a container. 
 ```bash
  * docker build -t todo-app --target=development .
- * docker run -it --rm -p 5000:5000 --env-file ./.env --name todo-app todo-app
+ * docker run --rm -p 5000:5000 --env-file ./.env --mount type=bind,source="$(pwd)"/todo_app,target=/app/todo_app --name todo-app todo-app
 ```
 
-You can also use docker-compose to create and start the development container with docker-compose up.
+You can also use docker-compose to create and start the development container with docker-compose up. You can use the --build option to make sure that it rebuilds the image if necessary.
 
 ### Production
 The production stage builds an image that can be used to run the app with Gunicorn + Flask in a container.
 ```bash
  * docker build -t todo-app --target=production .
- * docker run -it --rm -p 5000:5000 --env-file ./.env --name todo-app todo-app
+ * docker run --rm -p 5000:5000 --env-file ./.env --name todo-app todo-app
 ```
