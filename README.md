@@ -79,7 +79,7 @@ All tests or individual tests can also be run from an IDE. If using Visual Studi
 
 The integration tests are under tests_e2e. From a terminal you can run them as follows:
 ```bash
- * * poetry run pytest tests_e2e
+ * poetry run pytest tests_e2e
  * python -m pytest tests_e2e
 ```
 
@@ -87,3 +87,22 @@ The integration tests are under tests_e2e. From a terminal you can run them as f
 https://chromedriver.chromium.org/getting-started
 
 If you get an error from Mac OS that the chrome driver cannot be executed please read the workaround here: https://stackoverflow.com/questions/60362018/macos-catalinav-10-15-3-error-chromedriver-cannot-be-opened-because-the-de
+
+## Running application with Docker 
+The Dockerfile supports multi-stage builds (development and production). In both stages the .env file containing application secrets are not copied into the image. Instead it has to be passed with the --env-file option to docker run.
+
+### Development
+The development stage builds an image that can be used to run the app with Flask in a container. 
+```bash
+ * docker build -t todo-app --target=development .
+ * docker run --rm -p 5000:5000 --env-file ./.env --mount type=bind,source="$(pwd)"/todo_app,target=/app/todo_app --name todo-app todo-app
+```
+
+You can also use docker-compose to create and start the development container with docker-compose up. You can use the --build option to make sure that it rebuilds the image if necessary.
+
+### Production
+The production stage builds an image that can be used to run the app with Gunicorn + Flask in a container.
+```bash
+ * docker build -t todo-app --target=production .
+ * docker run --rm -p 5000:5000 --env-file ./.env --name todo-app todo-app
+```
